@@ -19,8 +19,9 @@ fun main() {
         // 利用 Gson 分析出需要的資料
         // sys.country. name
         // weather.main, weather.description, weather.icon
-        // main.temp, main.humidity
+        // main.temp, main.humidity, main.feels_like
         // clouds.all
+        // dt
         val root = JsonParser.parseString(json).asJsonObject
         val name = root.get("name").toString().replace("\"", "")
         val country = root.getAsJsonObject("sys").get("country").toString().replace("\"", "")
@@ -30,9 +31,11 @@ fun main() {
         val weatherDescription = weather.get("description").toString().replace("\"", "")
         val weatherIcon = weather.get("icon").toString().replace("\"", "")
         val main = root.getAsJsonObject("main")
-        val mainTemp = main.get("temp").toString().replace("\"", "")
-        val mainHumidity = main.get("Humidity").toString().replace("\"", "")
-        val cloudsAll = root.getAsJsonObject("clouds").get("all").toString().replace("\"", "")
+        val mainTemp = main.get("temp").asDouble
+        val mainFeelsLike = main.get("feels_like").asDouble
+        val mainHumidity = main.get("humidity").asDouble
+        val cloudsAll = root.getAsJsonObject("clouds").get("all").asInt
+        val dt = root.get("dt").asInt
 
         println(name)
         println(country)
@@ -40,8 +43,14 @@ fun main() {
         println(weatherDescription)
         println(weatherIcon)
         println(mainTemp)
+        println(mainFeelsLike)
         println(mainHumidity)
         println(cloudsAll)
+        println(dt)
+
+        val ow = OpenWeather(name, country, weatherMain, weatherDescription, weatherIcon, mainTemp, mainFeelsLike,mainHumidity, cloudsAll, dt)
+
+        print(ow)
 
 
     }
