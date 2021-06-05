@@ -1,4 +1,4 @@
-package com.study.api
+package com.study.model
 
 data class OpenWeather(val name: String,
                        val country: String,
@@ -11,6 +11,6 @@ data class OpenWeather(val name: String,
                        val cloudsAll: Int,
                        val dt: Int
 ) {
-    val weatherIconUrl: String = "http://openweathermap.org/img/wn/${weatherIcon}@2x.png"
+    val weatherIconUrl: String = "http://openweathermap.org/img/wn/${weatherIcon}@4x.png"
 
 }
