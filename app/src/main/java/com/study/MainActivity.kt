@@ -1,183 +1,50 @@
 package com.study
 
+import android.net.wifi.WifiConfiguration.AuthAlgorithm.strings
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.google.gson.JsonParser
+import android.view.View
+import android.widget.Toast
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.squareup.picasso.Picasso
-import com.study.model.OpenWeather
+import com.study.service.OpenWeatherService
+import com.study.viewmodel.OpenWeatherViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import okhttp3.Request
+
 
 class MainActivity : AppCompatActivity() {
+    lateinit var viewModel: OpenWeatherViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        viewModel = ViewModelProvider(this).get(OpenWeatherViewModel::class.java)
+        viewModel.currentImageURL.observe(this , Observer {
+            Picasso.get().load(it).into(iv_icon)
+        })
+
+        viewModel.currentLog.observe(this, Observer {
+            tv_log.text = it.toString()
+        })
+
+    }
+
+    fun changeOpenWeather(view: View) {
+        val q = view.tag.toString()
+        Toast.makeText(applicationContext, q, Toast.LENGTH_SHORT).show()
+
         GlobalScope.launch {
-            val q = "taoyuan,tw"
-            val appid = "fcc57465b76d35357c84e4e30fe2431a"
-            val path = "http://api.openweathermap.org/data/2.5/weather?q=${q}&appid=${appid}"
-            val client = OkHttpClient()
-
-            val request = Request.Builder()
-                .url(path)
-                .build()
-
-            client.newCall(request).execute().use {
-                val json = it.body!!.string()
-                val root = JsonParser.parseString(json).asJsonObject
-                val name = root.get("name").toString().replace("\"", "")
-                val country = root.getAsJsonObject("sys").get("country").toString().replace("\"", "")
-                val weather = root.getAsJsonArray("weather")[0].asJsonObject
-                val weatherMain = weather.get("main").toString().replace("\"", "")
-                val weatherDescription = weather.get("description").toString().replace("\"", "")
-                val weatherIcon = weather.get("icon").toString().replace("\"", "")
-                val main = root.getAsJsonObject("main")
-                val mainTemp = main.get("temp").asDouble
-                val mainFeelsLike = main.get("feels_like").asDouble
-                val mainHumidity = main.get("humidity").asDouble
-                val cloudsAll = root.getAsJsonObject("clouds").get("all").asInt
-                val dt = root.get("dt").asInt
-
-                val ow = OpenWeather(name, country, weatherMain, weatherDescription, weatherIcon,
-                    mainTemp, mainFeelsLike, mainHumidity, cloudsAll, dt)
-
-                // 顯示到 UI 上
-                runOnUiThread {
-                    Picasso.get().load(ow.weatherIconUrl).into(iv_icon)
-                    tv_log.setText(ow.toString())
-                }
-
-            }
-
-        }
-
-
-        btn_1.setOnClickListener {
-            GlobalScope.launch {
-                val q = "Los Angeles"
-                val appid = "fcc57465b76d35357c84e4e30fe2431a"
-                val path = "http://api.openweathermap.org/data/2.5/weather?q=${q}&appid=${appid}"
-                val client = OkHttpClient()
-
-                val request = Request.Builder()
-                    .url(path)
-                    .build()
-
-                client.newCall(request).execute().use {
-                    val json = it.body!!.string()
-                    val root = JsonParser.parseString(json).asJsonObject
-                    val name = root.get("name").toString().replace("\"", "")
-                    val country = root.getAsJsonObject("sys").get("country").toString().replace("\"", "")
-                    val weather = root.getAsJsonArray("weather")[0].asJsonObject
-                    val weatherMain = weather.get("main").toString().replace("\"", "")
-                    val weatherDescription = weather.get("description").toString().replace("\"", "")
-                    val weatherIcon = weather.get("icon").toString().replace("\"", "")
-                    val main = root.getAsJsonObject("main")
-                    val mainTemp = main.get("temp").asDouble
-                    val mainFeelsLike = main.get("feels_like").asDouble
-                    val mainHumidity = main.get("humidity").asDouble
-                    val cloudsAll = root.getAsJsonObject("clouds").get("all").asInt
-                    val dt = root.get("dt").asInt
-
-                    val ow = OpenWeather(name, country, weatherMain, weatherDescription, weatherIcon,
-                        mainTemp, mainFeelsLike, mainHumidity, cloudsAll, dt)
-
-                    // 顯示到 UI 上
-                    runOnUiThread {
-                        Picasso.get().load(ow.weatherIconUrl).into(iv_icon)
-                        tv_log.setText(ow.toString())
-                    }
-
-                }
-
+            val appid = resources.getString(R.string.appid)
+            val path  = resources.getString(R.string.path)
+            viewModel.ow = OpenWeatherService(appid, path).getOpenWeather(q)
+            runOnUiThread {
+                viewModel.currentImageURL.value = viewModel.ow!!.weatherIconUrl.toString()
+                viewModel.currentLog.value = viewModel.ow.toString()
             }
         }
-
-        btn_2.setOnClickListener {
-            GlobalScope.launch {
-                val q = "taoyuan,tw"
-                val appid = "fcc57465b76d35357c84e4e30fe2431a"
-                val path = "http://api.openweathermap.org/data/2.5/weather?q=${q}&appid=${appid}"
-                val client = OkHttpClient()
-
-                val request = Request.Builder()
-                    .url(path)
-                    .build()
-
-                client.newCall(request).execute().use {
-                    val json = it.body!!.string()
-                    val root = JsonParser.parseString(json).asJsonObject
-                    val name = root.get("name").toString().replace("\"", "")
-                    val country = root.getAsJsonObject("sys").get("country").toString().replace("\"", "")
-                    val weather = root.getAsJsonArray("weather")[0].asJsonObject
-                    val weatherMain = weather.get("main").toString().replace("\"", "")
-                    val weatherDescription = weather.get("description").toString().replace("\"", "")
-                    val weatherIcon = weather.get("icon").toString().replace("\"", "")
-                    val main = root.getAsJsonObject("main")
-                    val mainTemp = main.get("temp").asDouble
-                    val mainFeelsLike = main.get("feels_like").asDouble
-                    val mainHumidity = main.get("humidity").asDouble
-                    val cloudsAll = root.getAsJsonObject("clouds").get("all").asInt
-                    val dt = root.get("dt").asInt
-
-                    val ow = OpenWeather(name, country, weatherMain, weatherDescription, weatherIcon,
-                        mainTemp, mainFeelsLike, mainHumidity, cloudsAll, dt)
-
-                    // 顯示到 UI 上
-                    runOnUiThread {
-                        Picasso.get().load(ow.weatherIconUrl).into(iv_icon)
-                        tv_log.setText(ow.toString())
-                    }
-
-                }
-
-            }
-        }
-
-        btn_3.setOnClickListener {
-            GlobalScope.launch {
-                val q = "Beijing"
-                val appid = "fcc57465b76d35357c84e4e30fe2431a"
-                val path = "http://api.openweathermap.org/data/2.5/weather?q=${q}&appid=${appid}"
-                val client = OkHttpClient()
-
-                val request = Request.Builder()
-                    .url(path)
-                    .build()
-
-                client.newCall(request).execute().use {
-                    val json = it.body!!.string()
-                    val root = JsonParser.parseString(json).asJsonObject
-                    val name = root.get("name").toString().replace("\"", "")
-                    val country = root.getAsJsonObject("sys").get("country").toString().replace("\"", "")
-                    val weather = root.getAsJsonArray("weather")[0].asJsonObject
-                    val weatherMain = weather.get("main").toString().replace("\"", "")
-                    val weatherDescription = weather.get("description").toString().replace("\"", "")
-                    val weatherIcon = weather.get("icon").toString().replace("\"", "")
-                    val main = root.getAsJsonObject("main")
-                    val mainTemp = main.get("temp").asDouble
-                    val mainFeelsLike = main.get("feels_like").asDouble
-                    val mainHumidity = main.get("humidity").asDouble
-                    val cloudsAll = root.getAsJsonObject("clouds").get("all").asInt
-                    val dt = root.get("dt").asInt
-
-                    val ow = OpenWeather(name, country, weatherMain, weatherDescription, weatherIcon,
-                        mainTemp, mainFeelsLike, mainHumidity, cloudsAll, dt)
-
-                    // 顯示到 UI 上
-                    runOnUiThread {
-                        Picasso.get().load(ow.weatherIconUrl).into(iv_icon)
-                        tv_log.setText(ow.toString())
-                    }
-
-                }
-
-            }
-        }
-
     }
 }
