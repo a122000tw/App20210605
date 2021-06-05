@@ -14,7 +14,7 @@
 
         <Button
             android:id="@+id/btn_1"
-            android:text="taipei"
+            android:text="Los Angeles"
             android:layout_weight="1"
             android:textAllCaps="false"
             android:layout_width="match_parent"
@@ -22,7 +22,15 @@
 
         <Button
             android:id="@+id/btn_2"
-            android:text="taoyuan.tw"
+            android:text="Taoyuan.tw"
+            android:layout_weight="1"
+            android:textAllCaps="false"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/btn_3"
+            android:text="Beijing"
             android:layout_weight="1"
             android:textAllCaps="false"
             android:layout_width="match_parent"
