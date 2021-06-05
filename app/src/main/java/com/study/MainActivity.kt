@@ -1,6 +1,6 @@
 package com.study
 
-import android.net.wifi.WifiConfiguration.AuthAlgorithm.strings
+
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
