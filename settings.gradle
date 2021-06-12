@@ -1,3 +1,4 @@
+include ':app_retrofit'
 include ':app_transservice'
 include ':app'
 rootProject.name = "App20210605"
