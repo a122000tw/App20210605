@@ -12,7 +12,11 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/app_databinding_basic" />
+            <option value="$PROJECT_DIR$/app_pokemon" />
             <option value="$PROJECT_DIR$/app_retrofit" />
+            <option value="$PROJECT_DIR$/app_retrofit_animal" />
+            <option value="$PROJECT_DIR$/app_retrofit_crud" />
             <option value="$PROJECT_DIR$/app_transservice" />
           </set>
         </option>

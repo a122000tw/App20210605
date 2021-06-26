@@ -1,7 +1,9 @@
 package com.example.app_retrofit.api
 
 import com.example.app_retrofit.model.Comment
+import com.example.app_retrofit.model.Photo
 import com.example.app_retrofit.model.Post
+import com.example.app_retrofit.model.users.User
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -39,8 +41,20 @@ interface JsonPlaceHolderApi {
     @GET("comments")
     fun getComments(@QueryMap params: Map<String, String>): Call<List<Comment>>
 
+    // 查詢 users
+    @GET(value = "users")
+    fun getUsers(): Call<List<User>>
+
+    // 查詢 users
+    @GET(value = "photos")
+    fun getPhotos(): Call<List<Photo>>
+
     // 單筆查詢 ex: posts/2
     @GET("/posts/{id}")
     fun getPost(@Path("id") id: Int):Call<Post>
+
+    // 單筆查詢 users/1
+    @GET(value = "users/{id}")
+    fun getUser(@Path("id") id: Int): Call<User>
 
 }

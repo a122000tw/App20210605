@@ -26,22 +26,30 @@
             android:layout_height="wrap_content"/>
 
         <Button
-            android:id="@+id/btn_posts2_order"
-            android:text="posts2排序"
+            android:id="@+id/btn_users"
+            android:text="users"
             android:textAllCaps="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
         <Button
-            android:id="@+id/btn_comments_by_id"
-            android:text="commentsById"
+            android:id="@+id/btn_photos"
+            android:text="photos"
             android:textAllCaps="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
+
     </LinearLayout>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:listitem="@layout/recyclerview_row"/>
+
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/ns_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
