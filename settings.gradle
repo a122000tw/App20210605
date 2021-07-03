@@ -1,3 +1,7 @@
+include ':app_databinding_retrofit2'
+include ':app_databinding_recyclerview'
+include ':app_databinding_retrofit'
+include ':app_databinding_viewmodel'
 include ':app_databinding_basic'
 include ':app_retrofit_crud'
 include ':app_pokemon'
