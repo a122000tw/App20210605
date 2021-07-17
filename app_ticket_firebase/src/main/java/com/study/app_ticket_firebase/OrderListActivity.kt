@@ -1,26 +1,35 @@
 package com.study.app_ticket_firebase
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.ImageView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.qrcode.QRCodeWriter
 import com.study.app_ticket_firebase.adapter.RecyclerViewAdapter
 import com.study.app_ticket_firebase.models.Order
 import com.study.app_ticket_firebase.models.Ticket
 import kotlinx.android.synthetic.main.activity_order_list.*
 
-class OrderListActivity : AppCompatActivity() {
+class OrderListActivity : AppCompatActivity(), RecyclerViewAdapter.OrderOnItemClickListener {
     val database = Firebase.database
     val myRef = database.getReference("ticketsStock")
 
     lateinit var context: Context
     lateinit var userName: String
     lateinit var recyclerViewAdapter: RecyclerViewAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_order_list)
@@ -79,10 +88,43 @@ class OrderListActivity : AppCompatActivity() {
         // Init RecyclerView
         recycler_view.apply {
             layoutManager = LinearLayoutManager(context)
-            recyclerViewAdapter = RecyclerViewAdapter()
+            recyclerViewAdapter = RecyclerViewAdapter(this@OrderListActivity)
             adapter = recyclerViewAdapter
 
         }
 
+    }
+
+    override fun OnItemClickListener(order: Order) {
+        // 產生 Json
+        val orderJsonString = Gson().toJson(order).toString()
+        Toast.makeText(context, "click" + orderJsonString, Toast.LENGTH_SHORT).show()
+        // 產生 QR-Code
+        val writer = QRCodeWriter()
+        // 產生 bit 矩陣資料
+        val bitMatrix = writer.encode(orderJsonString, BarcodeFormat.QR_CODE, 512, 512)
+        val width = bitMatrix.width
+        val height = bitMatrix.height
+        // 產生 bitmap 圖像空間
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+        // 將 bitMatrix 矩陣資料 注入至 bitmap 圖像空間
+        for (x in 0 until width) {
+            for (y in 0 until height) {
+                // 有資料放黑色反之為白色
+                bitmap.setPixel(x, y, if (bitMatrix.get(x, y)) Color.BLACK else Color.WHITE)
+            }
+        }
+        // 建立自製 ImageView
+        val qrcodeImageView = ImageView(context)
+        qrcodeImageView.setImageBitmap(bitmap)
+        // 建立 AlterDialog 顯示 bitmap 圖像
+        AlertDialog.Builder(context)
+            .setView(qrcodeImageView)
+            .create()
+            .show()
+    }
+
+    override fun OnItemLongClickListener(order: Order) {
+        Toast.makeText(context, "long click" + order.toString(), Toast.LENGTH_SHORT).show()
     }
 }
