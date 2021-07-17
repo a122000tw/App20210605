@@ -9,17 +9,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.App20210605">
-        <activity android:name=".LoginActivity"
-                  android:label="@string/activity_login_title_txt">
+        <activity android:name=".OrderListActivity"></activity>
+        <activity
+            android:name=".LoginActivity"
+            android:label="@string/activity_login_title_txt">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"
-                  android:parentActivityName=".LoginActivity"
-                  android:label="@string/activity_main_title_txt">
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/activity_main_title_txt"
+            android:parentActivityName=".LoginActivity">
+
             <!-- android:screenOrientation="portrait" 手機翻轉時畫面不轉動 -->
         </activity>
     </application>
