@@ -124,7 +124,7 @@ class MainActivity : AppCompatActivity() {
     fun viewOrderList(view: View) {
         val intent = Intent(context, OrderListActivity::class.java)
         // 將 userName 帶給 OrderListActivity
-        intent.putExtra("usserName", userName)
+        intent.putExtra("userName", userName)
         startActivity(intent)
     }
 

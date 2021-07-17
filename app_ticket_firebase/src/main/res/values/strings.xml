@@ -22,6 +22,7 @@
     <string name="order_login_txt">訂票登入</string>
     <string name="console_login_txt">後台登入</string>
     <!-- activity_order_list -->
-    <string name="activity_order_list_title_txt">雲端購票紀錄</string>
+    <string name="activity_order_list_title_txt">雲端購票紀錄 - %s</string>
+    <string name="all_order_txt">所有訂單紀錄</string>
 
 </resources>
