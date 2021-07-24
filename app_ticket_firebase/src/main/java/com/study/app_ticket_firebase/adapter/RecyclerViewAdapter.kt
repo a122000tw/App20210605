@@ -11,25 +11,32 @@ import kotlinx.android.synthetic.main.order.view.*
 
 // 適配器 (配置每一筆訂單紀錄)    (第二步) -> : RecyclerView.Adapter<RecyclerViewAdapter.OrderViewHolder>()
 class RecyclerViewAdapter(val listener: OrderOnItemClickListener): RecyclerView.Adapter<RecyclerViewAdapter.OrderViewHolder>() {
-    private var orderList: List<Order> = ArrayList()
+    private var orderList: List<Order> = ArrayList<Order>()
     fun setOrderList(orderList: List<Order>) {
+
         this.orderList = orderList
+    }
+
+    fun getOrderList(): List<Order> {
+        return this.orderList
     }
 
     // View 配置方式(第一步)
     class OrderViewHolder(view: View): RecyclerView.ViewHolder(view) {
+        private val key = view.tv_key
         private val userName = view.tv_userName
         private val allTickets = view.tv_allTickets
         private val roundTrip = view.tv_roundTrip
         private val oneWay = view.tv_oneWay
         private val total = view.tv_total
         fun bind(order: Order) {
+            key.text = "key: ${order.key}"
             userName.text = order.ticket.userName
             allTickets.text = order.ticket.allTickets.toString()
             roundTrip.text = order.ticket.roundTrip.toString()
             oneWay.text = order.ticket.oneWay.toString()
             total.text = order.ticket.total.toString()
-
+            total.textAlignment = View.TEXT_ALIGNMENT_TEXT_END
         }
 
     }

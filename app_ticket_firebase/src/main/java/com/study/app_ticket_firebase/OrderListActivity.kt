@@ -5,7 +5,9 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,6 +23,9 @@ import com.study.app_ticket_firebase.adapter.RecyclerViewAdapter
 import com.study.app_ticket_firebase.models.Order
 import com.study.app_ticket_firebase.models.Ticket
 import kotlinx.android.synthetic.main.activity_order_list.*
+import kotlinx.android.synthetic.main.order.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 class OrderListActivity : AppCompatActivity(), RecyclerViewAdapter.OrderOnItemClickListener {
     val database = Firebase.database
@@ -46,8 +51,9 @@ class OrderListActivity : AppCompatActivity(), RecyclerViewAdapter.OrderOnItemCl
         }
         // Read from database
         myRef.addValueEventListener(object : ValueEventListener {
-            val orderList = mutableListOf<Order>()
+            lateinit var orderList: MutableList<Order>
             override fun onDataChange(snapshot: DataSnapshot) {
+                orderList = mutableListOf<Order>()
                 val children = snapshot.children
                 children.forEach {
                     if (it.key.toString() == "transaction") {
@@ -68,16 +74,21 @@ class OrderListActivity : AppCompatActivity(), RecyclerViewAdapter.OrderOnItemCl
                 recyclerViewAdapter.notifyDataSetChanged()
             }
             private fun addRecord(it: DataSnapshot, userName: String) {
-                it.child(userName).children.forEach {
-                    val key = it.key.toString()
-                    val allTickets = it.child("allTickets").value.toString().toInt()
-                    val roundTrip = it.child("roundTrip").value.toString().toInt()
-                    val oneWay = it.child("oneWay").value.toString().toInt()
-                    val total = it.child("total").value.toString().toInt()
-                    val ticket = Ticket(userName, allTickets, roundTrip, oneWay, total)
-                    val order = Order(key, ticket)
-                    orderList.add(order)
+                try { // try-catch 解決按下紀錄後返回訂票成功之後會發生 null 錯誤的問題
+                    it.child(userName).children.forEach {
+                        val key = it.key.toString()
+                        val allTickets = it.child("allTickets").value.toString().toInt()
+                        val roundTrip = it.child("roundTrip").value.toString().toInt()
+                        val oneWay = it.child("oneWay").value.toString().toInt()
+                        val total = it.child("total").value.toString().toInt()
+                        val ticket = Ticket(userName, allTickets, roundTrip, oneWay, total)
+                        val order = Order(key, ticket)
+                        orderList.add(order)
+                    }
+                } catch (e: Exception) {
+
                 }
+
             }
             override fun onCancelled(error: DatabaseError) {
 
@@ -95,6 +106,7 @@ class OrderListActivity : AppCompatActivity(), RecyclerViewAdapter.OrderOnItemCl
 
     }
 
+    // 按一下可以產生 QR-Code
     override fun OnItemClickListener(order: Order) {
         // 產生 Json
         val orderJsonString = Gson().toJson(order).toString()
@@ -124,7 +136,60 @@ class OrderListActivity : AppCompatActivity(), RecyclerViewAdapter.OrderOnItemCl
             .show()
     }
 
+    // 長按一下可以退票
     override fun OnItemLongClickListener(order: Order) {
+        // 組合訂單路徑
+        val path = "transaction/" + order.ticket.userName + "/" + order.key
+        // 刪除訂單路徑資料
+        AlertDialog.Builder(context)
+            .setTitle("票務處置")
+            .setMessage("票券: ${order.ticket.userName} [${order.key}]")
+            .setPositiveButton("退票") { dialog, which ->
+                myRef.child(path).removeValue()
+                // firebase's totalAmount 要加回所退回的數量(order.ticket.allTickets)
+                myRef.child("totalAmount").addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val totalAmount = snapshot.value.toString().toInt()
+                        val newTotalAmount = totalAmount + order.ticket.allTickets
+                        myRef.child("totalAmount").setValue(newTotalAmount)
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        TODO("Not yet implemented")
+                    }
+
+                })
+                // 寫入退票紀錄檔
+                // firebase "transaction_refund"
+                val sdf = SimpleDateFormat("yyyyMMddHHmmssSSS")
+                val dateString = sdf.format(Date())
+                val orderJsonString = Gson().toJson(order).toString()
+                myRef.child("transaction_refund/" + dateString + "/json").setValue(orderJsonString)
+                myRef.child("transaction_refund/" + dateString + "/order/key").setValue(order.key)
+                myRef.child("transaction_refund/" + dateString + "/order/ticket/userName").setValue(order.ticket.userName)
+                myRef.child("transaction_refund/" + dateString + "/order/ticket/allTickets").setValue(order.ticket.allTickets)
+                myRef.child("transaction_refund/" + dateString + "/order/ticket/roundTrip").setValue(order.ticket.roundTrip)
+                myRef.child("transaction_refund/" + dateString + "/order/ticket/oneWay").setValue(order.ticket.oneWay)
+                myRef.child("transaction_refund/" + dateString + "/order/ticket/total").setValue(order.ticket.total)
+            }
+            .setNegativeButton("取消", null)
+            .create()
+            .show()
         Toast.makeText(context, "long click" + order.toString(), Toast.LENGTH_SHORT).show()
     }
+    // 根據 ticket's total 排序
+    fun ticketTotalSort(view: View) {
+        // ▲▼
+        Order.orderDelta *= -1
+        if(Order.orderDelta == -1) {
+            (view as TextView).text = resources.getString(R.string.total_txt) + "▼"
+        } else {
+            (view as TextView).text = resources.getString(R.string.total_txt) + "▲"
+        }
+
+        val orderList = recyclerViewAdapter.getOrderList()
+        Collections.sort(orderList)
+        recyclerViewAdapter.notifyDataSetChanged()
+    }
+
 }

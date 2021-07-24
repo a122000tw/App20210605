@@ -24,5 +24,13 @@
     <!-- activity_order_list -->
     <string name="activity_order_list_title_txt">雲端購票紀錄 - %s</string>
     <string name="all_order_txt">所有訂單紀錄</string>
-
+    <string name="total_txt">金額</string>
+    <!-- activity_console_list -->
+    <string name="activity_console_list_title_txt">雲端後台 - %s</string>
+    <string name="discount_txt">Discount</string>
+    <string name="price_txt">Price</string>
+    <string name="totalAmount_txt">TotalAmount</string>
+    <string name="update_txt">Update</string>
+    <string name="update_ok">%s修改成功</string>
+    <string name="stat_text">銷售統計</string>
 </resources>
