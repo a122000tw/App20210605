@@ -105,9 +105,8 @@ class OrderListActivity : AppCompatActivity(), RecyclerViewAdapter.OrderOnItemCl
         }
 
     }
-
-    // 按一下可以產生 QR-Code
-    override fun OnItemClickListener(order: Order) {
+    // 產生 QR-Code
+    private fun genQRCode(order: Order) {
         // 產生 Json
         val orderJsonString = Gson().toJson(order).toString()
         Toast.makeText(context, "click" + orderJsonString, Toast.LENGTH_SHORT).show()
@@ -134,6 +133,50 @@ class OrderListActivity : AppCompatActivity(), RecyclerViewAdapter.OrderOnItemCl
             .setView(qrcodeImageView)
             .create()
             .show()
+    }
+    // 使用票券
+    private fun useTicket(order: Order) {
+        runOnUiThread {
+            val result_text = Gson().toJson(order, Order::class.java) // 解碼內容
+            AlertDialog.Builder(context)
+                .setTitle("QRCode 內容")
+                .setMessage("${result_text}")
+                .setPositiveButton(
+                    "使用"
+                ) { dialogInterface, i ->
+                    // 取得該票路徑
+                    val path = order.ticket.userName + "/" + order.key
+                    val transPath = "transaction/$path"
+                    // 刪除該票
+                    myRef.child(transPath).removeValue()
+                    // 建立 transaction_history
+                    val ts = SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SS").format(Date()).toString()
+                    myRef.child("transaction_history/$path/ts").setValue(ts)
+                    myRef.child("transaction_history/$path/key").setValue(order.key)
+                    myRef.child("transaction_history/$path/userName")
+                        .setValue(order.ticket.userName)
+                    myRef.child("transaction_history/$path/allTickets")
+                        .setValue(order.ticket.allTickets)
+                    myRef.child("transaction_history/$path/oneWay").setValue(order.ticket.oneWay)
+                    myRef.child("transaction_history/$path/roundTrip")
+                        .setValue(order.ticket.roundTrip)
+                    myRef.child("transaction_history/$path/total").setValue(order.ticket.total)
+                    myRef.child("transaction_history/$path/json").setValue(result_text)
+                }
+                .setNegativeButton("取消") { dialogInterface, i -> finish() }
+                .create()
+                .show()
+        }
+    }
+
+    // 按一下可以產生 QR-Code 或 使用票券(後台使用)
+    override fun OnItemClickListener(order: Order) {
+        // 無userName 表示後台專用
+        if (userName == null || userName.equals("") || userName.equals("null")) {
+            useTicket(order)
+        } else {
+            genQRCode(order)
+        }
     }
 
     // 長按一下可以退票
